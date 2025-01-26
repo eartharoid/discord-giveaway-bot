@@ -1,6 +1,9 @@
 import log from './logger';
 import { client } from './discord';
 
+process.env.COLOR ||= 'Blurple';
+process.env.EMOJI ||= '🎉';
+
 function exit(signal: string) {
 	log.notice(`Received ${signal}`);
 	client.destroy();

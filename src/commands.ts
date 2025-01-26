@@ -12,15 +12,14 @@ export default [
 		)
 		.addStringOption(option =>
 			option
-				.setName('description')
-				.setDescription('Embed description; more details.')
+				.setName('duration')
+				.setDescription('How long until the winner is chosen?')
 				.setRequired(true),
 		)
 		.addStringOption(option =>
 			option
-				.setName('duration')
-				.setDescription('How long until the winner is chosen?')
-				.setRequired(true),
+				.setName('description')
+				.setDescription('Embed description; more details. (default: none)'),
 		)
 		.addAttachmentOption(option =>
 			option
@@ -31,6 +30,11 @@ export default [
 			option
 				.setName('ping')
 				.setDescription('Ping a role? (default: none)'),
+		)
+		.addUserOption(option =>
+			option
+				.setName('host')
+				.setDescription('Who is the host? (default: you)'),
 		)
 		.addNumberOption(option =>
 			option

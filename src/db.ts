@@ -62,13 +62,15 @@ export const queries = {
 	endGiveaway: db.query(sql`
         UPDATE giveaways SET ended = 1 WHERE giveawayId = $giveawayId;
     `).as(Giveaway),
+	getGiveaway: db.query(sql`
+        SELECT * FROM giveaways WHERE giveawayId = $giveawayId;
+    `).as(Giveaway),
 	getOverdueGiveaways: db.query(sql`
         SELECT * FROM giveaways WHERE NOT ended AND endsAt < $now;
     `).as(Giveaway),
 };
 
-export const endGiveaway = (giveawayId: number) => queries.endGiveaway.run({ giveawayId });
-
 export const createGiveaway = (giveaway: InsertGiveawayProperties) => queries.createGiveaway.run(giveaway);
-
+export const endGiveaway = (giveawayId: number) => queries.endGiveaway.run({ giveawayId });
+export const getGiveaway = (giveawayId: number) => queries.getGiveaway.get({ giveawayId });
 export const getOverdueGiveaways = () => queries.getOverdueGiveaways.all({ now: Math.floor(Date.now() / 1000) });

@@ -9,9 +9,9 @@ services:
     # env_file: .env
 
     # environment:
+    #   - COLOR=#5865F2
     #   - DISCORD_TOKEN=
     #   - EMOJI=🎉
-    #   - COLOR=#5865F2
 
 
     volumes:
