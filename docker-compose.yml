@@ -11,7 +11,7 @@ services:
     # environment:
     #   - DISCORD_TOKEN=
     #   - EMOJI=🎉
-    #   - COLOR="#5865F2"
+    #   - COLOR=#5865F2
 
 
     volumes:
