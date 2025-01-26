@@ -1,6 +1,6 @@
 *
 !src/
-!bun.lockb
+!bun.lock
 !LICENSE
 !package.json
 !README.md
