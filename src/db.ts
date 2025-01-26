@@ -1,3 +1,4 @@
+import { $ } from 'bun';
 import { Database } from 'bun:sqlite';
 
 /**
@@ -5,7 +6,9 @@ import { Database } from 'bun:sqlite';
  */
 export const sql = (strings: TemplateStringsArray, ...values: unknown[]) => String.raw({ raw: strings }, ...values);
 
-export const db = new Database('database.sqlite', {
+await $`mkdir -p data`;
+
+export const db = new Database('./data/database.sqlite', {
 	create: true,
 	strict: true,
 });
