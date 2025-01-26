@@ -1,4 +1,7 @@
-import { SlashCommandBuilder } from 'discord.js';
+import {
+	ChannelType,
+	SlashCommandBuilder,
+} from 'discord.js';
 
 export default [
 	new SlashCommandBuilder()
@@ -13,7 +16,7 @@ export default [
 		.addStringOption(option =>
 			option
 				.setName('duration')
-				.setDescription('How long until the winner is chosen?')
+				.setDescription('How long until the winner is chosen? (e.g. 1 week)')
 				.setRequired(true),
 		)
 		.addStringOption(option =>
@@ -42,5 +45,17 @@ export default [
 				.setDescription('How many winners? (default: 1)')
 				.setMinValue(1)
 				.setMaxValue(10),
+		)
+		.addChannelOption(option =>
+			option
+				.setName('channel')
+				.setDescription('Which channel should be used? (default: current')
+				.addChannelTypes([
+					ChannelType.GuildText,
+					ChannelType.GuildAnnouncement,
+					ChannelType.AnnouncementThread,
+					ChannelType.PublicThread,
+					ChannelType.PrivateThread,
+				]),
 		),
 ];

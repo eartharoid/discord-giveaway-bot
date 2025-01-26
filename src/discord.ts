@@ -39,7 +39,6 @@ client.once(Events.ClientReady, async client => {
 		log.warn('Skipping command registration in development mode');
 	 }
 
-
 	start(client);
 });
 
@@ -55,6 +54,14 @@ client.on(Events.InteractionCreate, async interaction => {
 			const ping = interaction.options.getRole('ping');
 			const winners = interaction.options.getNumber('winners') || 1;
 			const host = interaction.options.getUser('host') || interaction.user;
+			const channel = client.channels.cache.get(interaction.options.getChannel('channel')?.id || interaction.channelId);
+
+			if (!channel?.isSendable()) {
+				return await interaction.reply({
+					content: 'Unable to send messages to channel.',
+					flags: MessageFlags.Ephemeral,
+				});
+			}
 
 			if (duration === undefined) {
 				return await interaction.reply({
@@ -102,18 +109,18 @@ client.on(Events.InteractionCreate, async interaction => {
 
 			if (banner) embed.setImage(banner.url);
 
-			const followUp = await interaction.followUp({
+			const sent = await channel.send({
 				allowedMentions: { roles: ping ? [ping.id] : [] },
 				content: ping ? ping.toString() : undefined,
 				embeds: [embed],
 			});
-			await followUp.react(process.env.EMOJI);
+			await sent.react(process.env.EMOJI);
 
 			const giveawayProperties = {
-				channelId: followUp.channelId,
+				channelId: sent.channelId,
 				endsAt: endsAtSeconds,
 				guildId: interaction.guildId,
-				messageId: followUp.id,
+				messageId: sent.id,
 				winners,
 			};
 
@@ -124,7 +131,7 @@ client.on(Events.InteractionCreate, async interaction => {
 				log.warn('Failed to create giveaway');
 				log.error(error);
 				await interaction.editReply({ content: 'Sorry, something went wrong.' });
-				await followUp.delete();
+				await sent.delete();
 			}
 		} catch (error) {
 			log.error(error);
@@ -140,11 +147,16 @@ client.on(Events.InteractionCreate, async interaction => {
 			if (!giveaway) return await interaction.editReply({ content: 'Sorry, something went wrong.' });
 			try {
 				log.info('Re-rolling at the request of', member.user.username, giveaway);
-				await roll(client as Client<true>, giveaway, true);
-				await interaction.editReply({ content: 'The giveaway has been re-rolled' });
+				await roll(client as Client<true>, giveaway);
+				await interaction.editReply({ content: 'The giveaway has been re-rolled.' });
 			} catch (error) {
-				log.error(error);
-				await interaction.editReply({ content: 'Sorry, something went wrong.' });
+				if (typeof error === 'string') {
+					log.warn(error);
+					await interaction.editReply({ content: error });
+				} else {
+					log.error(error);
+					await interaction.editReply({ content: 'Sorry, something went wrong.' });
+				}
 			}
 		}
 	}

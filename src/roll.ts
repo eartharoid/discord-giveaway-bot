@@ -11,7 +11,7 @@ import {
 	type Client,
 } from 'discord.js';
 
-export default async function roll(client: Client<true>, giveaway: Giveaway, reroll = false) {
+export default async function roll(client: Client<true>, giveaway: Giveaway) {
 	try {
 		const channel = await client.channels.fetch(giveaway.channelId);
 		if (!channel || !channel.isSendable()) {
@@ -19,11 +19,10 @@ export default async function roll(client: Client<true>, giveaway: Giveaway, rer
 			return;
 		}
 		const message = await channel.messages.fetch(giveaway.messageId);
-		const reactions = message.reactions.cache.get(process.env.EMOJI || '🎉');
-		const users = (await reactions?.users.fetch())?.filter(user => !user.bot);
+		const reaction = message.reactions.cache.get(process.env.EMOJI);
+		const users = (await reaction?.users.fetch())?.filter(user => !user.bot);
 		if (!users || users.size < giveaway.winners) {
-			log.warn(`Not enough participants for giveaway ${giveaway.giveawayId}`);
-			return;
+			throw `Not enough participants for giveaway ${giveaway.giveawayId}`;
 		}
 		const winners = users.random(giveaway.winners);
 		const formatter = new Intl.ListFormat('en', {
@@ -33,27 +32,11 @@ export default async function roll(client: Client<true>, giveaway: Giveaway, rer
 		const winnerList = formatter.format(winners.map(winner => winner.toString()));
 		const embed = new EmbedBuilder(message.embeds[0].data);
 
-		if (reroll) {
-			embed.data.fields![2].value = winnerList;
-		} else {
-			embed.setFields([
-				{
-					inline: false,
-					name: 'Ended',
-					value: message.embeds[0].data.fields![0].value,
-				},
-				{
-					inline: false,
-					name: 'Hosted by',
-					value: message.embeds[0].data.fields![2].value,
-				},
-				{
-					inline: false,
-					name: giveaway.winners === 1 ? 'Winner' : 'Winners',
-					value: winners.toString(),
-				},
-			]);
-		}
+		embed.data.fields![0].name = 'Ended';
+		embed.data.fields![1] = {
+			name: giveaway.winners === 1 ? 'Winner' : 'Winners',
+			value: winnerList,
+		};
 
 		await message.edit({
 			components: [
@@ -79,7 +62,7 @@ export default async function roll(client: Client<true>, giveaway: Giveaway, rer
 						{
 							inline: false,
 							name: 'Hosted by',
-							value: message.embeds[0].data.fields![reroll ? 1 : 2].value,
+							value: message.embeds[0].data.fields![2].value,
 						},
 					]),
 			],
@@ -88,8 +71,12 @@ export default async function roll(client: Client<true>, giveaway: Giveaway, rer
 		log.info(`Setting giveaway ${giveaway.giveawayId} as ended`);
 		endGiveaway(giveaway.giveawayId);
 	} catch (error) {
-		log.error(error);
-		log.info(`Setting giveaway ${giveaway.giveawayId} as ended`);
-		endGiveaway(giveaway.giveawayId);
+		if (typeof error === 'string') {
+			throw error;
+		} else {
+			log.error(error);
+			log.info(`Setting giveaway ${giveaway.giveawayId} as ended`);
+			endGiveaway(giveaway.giveawayId);
+		}
 	}
 }
