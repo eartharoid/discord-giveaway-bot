@@ -7,9 +7,9 @@ import {
 import type { Client } from 'discord.js';
 
 async function runGiveaways(client: Client<true>) {
-	log.info('Checking for overdue giveaways...');
 	const giveaways = getOverdueGiveaways();
 	for (const giveaway of giveaways) {
+		log.info(giveaway);
 		try {
 			const channel = await client.channels.fetch(giveaway.channelId);
 			if (!channel || !channel.isSendable()) {
