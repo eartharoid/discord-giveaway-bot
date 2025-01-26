@@ -1,0 +1,18 @@
+services:
+  giveaways:
+    build: .
+    image: eartharoid/giveaway-bot
+    tty: true
+    restart: unless-stopped
+
+
+    # env_file: .env
+
+    # environment:
+    #   - DISCORD_TOKEN=
+    #   - EMOJI=🎉
+    #   - COLOR="#5865F2"
+
+
+    volumes:
+      - ./data:/usr/src/app/data:rw
